@@ -24,7 +24,6 @@ def download(params, output_dir=None):
 
         # Delete the zip file
         os.remove(zip_file_path)
-        print(f"Zip file deleted: {zip_file_path}")
 
         return extract_dir
     else:

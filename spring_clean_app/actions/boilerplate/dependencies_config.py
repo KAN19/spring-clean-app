@@ -50,4 +50,46 @@ def add_dependencies_to_pom(pom_file_path):
 
     # Save the updated pom.xml file
     tree.write(pom_file_path, encoding="utf-8", xml_declaration=True)
-    print(f"✅ Dependencies successfully added to {pom_file_path}")
+
+
+def add_dependencies_to_gradle(build_gradle_path):
+    """
+    Modify an existing build.gradle file to add new dependencies without duplication.
+    """
+    # Read the current build.gradle file
+    with open(build_gradle_path, "r") as file:
+        lines = file.readlines()
+
+    # Define where dependencies block starts and ends
+    in_dependencies_block = False
+    existing_dependencies = set()
+
+    # Extract all existing dependencies
+    for line in lines:
+        if line.strip().startswith("dependencies {"):
+            in_dependencies_block = True
+        elif in_dependencies_block and line.strip().startswith("}"):
+            in_dependencies_block = False
+        elif in_dependencies_block:
+            # Extract existing dependency strings
+            stripped_line = line.strip()
+            if stripped_line.startswith("implementation"):
+                existing_dependencies.add(stripped_line)
+
+    # Build new dependency lines
+    new_dependency_lines = []
+    for dep in dependencies_to_add:
+        dep_line = f'    implementation "{dep["groupId"]}:{dep["artifactId"]}:{dep["version"]}"\n'
+        if dep_line.strip() not in existing_dependencies:
+            new_dependency_lines.append(dep_line)
+
+    # Inject new dependencies into the dependencies block
+    updated_lines = []
+    for line in lines:
+        updated_lines.append(line)
+        if line.strip().startswith("dependencies {"):
+            updated_lines.extend(new_dependency_lines)
+
+    # Write back to the build.gradle file
+    with open(build_gradle_path, "w") as file:
+        file.writelines(updated_lines)

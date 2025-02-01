@@ -7,11 +7,16 @@ from spring_clean_app.actions.boilerplate.core.core_exception import (
     get_resource_notfound_exception,
 )
 from spring_clean_app.actions.boilerplate.core.usecase_config import *
+from spring_clean_app.actions.boilerplate.entry_point_config import (
+    get_spring_boot_main_boilerplate,
+)
 from spring_clean_app.actions.boilerplate.infra.client.client_placeholder import *
 from spring_clean_app.actions.boilerplate.infra.data.data_entities import *
 from spring_clean_app.actions.boilerplate.infra.data.data_mapper import *
 from spring_clean_app.actions.boilerplate.infra.data.data_repositories import *
-from spring_clean_app.actions.boilerplate.pom_config import add_dependencies_to_pom
+from spring_clean_app.actions.boilerplate.dependencies_config import (
+    add_dependencies_to_pom,
+)
 from spring_clean_app.actions.boilerplate.presenter.rest.rest_common import *
 from spring_clean_app.actions.boilerplate.presenter.rest.rest_controller import *
 from spring_clean_app.actions.boilerplate.presenter.web_config import (
@@ -21,9 +26,6 @@ from spring_clean_app.actions.boilerplate.resources.migration import *
 from spring_clean_app.actions.boilerplate.resources.profile_config import *
 from spring_clean_app.utils import *
 from spring_clean_app.utils.utils import create_file, create_folder, create_folders
-
-# Zip file deleted: /Users/lap14637/Documents/NguyenKiet/myproject/spring-clean-app/hello123.zip
-# Path ne /Users/lap14637/Documents/NguyenKiet/myproject/spring-clean-app/hello123
 
 # https://springdoc.org/faq.html?utm_source=chatgpt.com
 
@@ -323,50 +325,12 @@ def create_folders_tree(base_path, group_id, artifact_id, folder):
         create_folders_tree(base_path, group_id, artifact_id, child_folder)
 
 
-def create_boilerplate(base_path, options):
-    group_id = options["groupId"]
-    artifact_id = options["artifactId"]
-    src_main_resources, _, package_path = __init_base_path(
-        base_path, group_id, artifact_id
-    )
-
-    # Modify pom file
-    add_dependencies_to_pom(os.path.join(base_path, "pom.xml"))
-
-    # Create app resources:
-    create_app_resource(src_main_resources, artifact_id, options)
-
-    # Create folders structure
-    create_folders_tree(package_path, group_id, artifact_id, root_app_packages)
-
-    override_application_file(package_path, group_id, artifact_id)
-
-
 def override_application_file(package_path, group_id, artifact_id):
     """Overide the main application app"""
     create_file(
         os.path.join(package_path, f"{artifact_id.capitalize()}Application.java"),
         get_spring_boot_main_boilerplate(group_id, artifact_id),
     )
-
-
-def get_spring_boot_main_boilerplate(group_id, artifact_id):
-    return f"""package {group_id}.{artifact_id};
-
-import com.cosium.spring.data.jpa.entity.graph.repository.support.EntityGraphJpaRepositoryFactoryBean;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
-@SpringBootApplication
-@EnableJpaRepositories(repositoryFactoryBeanClass = EntityGraphJpaRepositoryFactoryBean.class)
-public class {artifact_id.capitalize()}Application {{
-
-    public static void main(String[] args) {{
-        SpringApplication.run({artifact_id.capitalize()}Application.class, args);
-    }}
-}}
-"""
 
 
 def create_app_resource(src_main_resources, artifact_id, options):
@@ -393,7 +357,7 @@ def create_app_resource(src_main_resources, artifact_id, options):
     )
 
 
-def __init_base_path(base_path, group_id, artifact_id):
+def init_base_path(base_path, group_id, artifact_id):
     src_main_java = os.path.join(base_path, "src", "main", "java")
     src_main_resources = os.path.join(base_path, "src", "main", "resources")
     src_test_java = os.path.join(base_path, "src", "test", "java")
