@@ -23,7 +23,7 @@ jobs:
     # Step 3: Install Poetry
     - name: Install Poetry
       run: |
-        pip install poetry
+        pip install poetry>=1.5.0
 
     # Step 4: Install dependencies
     - name: Install dependencies
