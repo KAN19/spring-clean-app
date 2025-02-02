@@ -3,26 +3,27 @@ name: Build and Publish to PyPI
 on:
   push:
     branches:
-      - main # Run build job on push/merge to main
+      - main
   release:
     types:
-      - published # Trigger publish job only when a release is published
+      - published
 
 jobs:
-  # Step 1: Build Job (Runs on Push to Main)
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Ensure latest version
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8 # Use your preferred Python version
+          python-version: "3.12" # Ensure it matches `requires-python` in `pyproject.toml`
 
       - name: Install Poetry
-        run: pip install poetry>=2.0.0
+        run: |
+          pip install poetry>=1.7.1
+          poetry config experimental.new-installer true  # Ensure it recognizes `[project]` format
 
       - name: Install dependencies
         run: poetry install --no-root
@@ -31,23 +32,22 @@ jobs:
         run: poetry build
 
       - name: Upload built package
-        uses: actions/upload-artifact@v4 # ✅ Upgrade to v4
+        uses: actions/upload-artifact@v4
         with:
           name: dist-files
           path: dist/
-          retention-days: 7 # Keep for 7 days
+          retention-days: 7
 
-  # Step 2: Publish Job (Runs on Release Event)
   publish:
-    needs: build # Ensure build completes first
+    needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' # Only run on release event
+    if: github.event_name == 'release'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Download built package
-        uses: actions/download-artifact@v4 # ✅ Upgrade to v4
+        uses: actions/download-artifact@v4
         with:
           name: dist-files
           path: dist/
@@ -55,14 +55,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8 # Use your preferred Python version
+          python-version: "3.12"
 
       - name: Install Poetry
-        run: pip install poetry>=2.0.0
+        run: |
+          pip install poetry>=1.7.1
+          poetry config experimental.new-installer true  # Ensure it recognizes `[project]` format
 
       - name: Publish to PyPI
         env:
           PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          poetry config pypi-token.pypi $PYPI_API_TOKEN
           poetry publish --build
