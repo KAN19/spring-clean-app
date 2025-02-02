@@ -1,7 +1,7 @@
 [project]
 name = "spring-clean-app"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "A CLI application helps create spring boot application following clean architecture pattern"
 authors = [
     {name = "KAN19",email = "nguyenkiet0807@gmail.com"}
 ]
@@ -12,11 +12,13 @@ dependencies = [
     "requests (>=2.32.3,<3.0.0)",
     "rich (>=13.9.4,<14.0.0)"
 ]
+license = "MIT"  # License type
+homepage = "https://github.com/KAN19/spring-clean-app" 
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry.scripts]
+[project.scripts]
 spring-clean-app = "spring_clean_app.main:cli"
